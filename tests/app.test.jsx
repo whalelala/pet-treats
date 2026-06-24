@@ -92,6 +92,16 @@ describe('Paw Pantry storefront', () => {
     expect(screen.getByText('合计 ¥46')).toBeInTheDocument();
   });
 
+  it('renders fallback products when the API is unavailable', async () => {
+    global.fetch = vi.fn(() => Promise.reject(new Error('API unavailable')));
+
+    const { container } = render(<App />);
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('.product-card')).toHaveLength(6);
+    });
+  });
+
   it('validates checkout fields before order submission', async () => {
     render(<App />);
 

@@ -6,6 +6,29 @@ import {
   upsertCartItem,
   validateCheckout
 } from './lib/cart.js';
+import { categories as fallbackCategories, products as fallbackProducts } from '../server/products.js';
+
+const canUseApi =
+  typeof window === 'undefined' || !window.location.hostname.endsWith('github.io');
+
+function resolveAssetPath(path) {
+  if (!path || !path.startsWith('/')) {
+    return path;
+  }
+
+  return `${import.meta.env.BASE_URL}${path.slice(1)}`;
+}
+
+function createStaticOrder({ total }) {
+  const datePart = new Date().toISOString().slice(0, 10).replaceAll('-', '');
+
+  return {
+    id: `PP-${datePart}-LOCAL`,
+    total,
+    paymentStatus: 'pending_configuration',
+    status: 'created'
+  };
+}
 
 const paymentProviders = [
   { id: 'wechat', label: '微信支付' },
@@ -13,22 +36,29 @@ const paymentProviders = [
 ];
 
 export default function App() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState(fallbackProducts);
+  const [categories, setCategories] = useState(fallbackCategories);
   const [activeCategory, setActiveCategory] = useState('all');
   const [query, setQuery] = useState('');
   const [cartItems, setCartItems] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(fallbackProducts[0] || null);
   const [customer, setCustomer] = useState({ name: '', phone: '', address: '' });
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState([]);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [paymentMessage, setPaymentMessage] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(canUseApi);
   const [apiError, setApiError] = useState('');
 
   useEffect(() => {
     let isMounted = true;
+
+    if (!canUseApi) {
+      setLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
 
     fetch('/api/products')
       .then((response) => response.json())
@@ -42,7 +72,9 @@ export default function App() {
       })
       .catch(() => {
         if (isMounted) {
-          setApiError('商品加载失败，请稍后刷新页面。');
+          setProducts(fallbackProducts);
+          setCategories(fallbackCategories);
+          setSelectedProduct(fallbackProducts[0] || null);
         }
       })
       .finally(() => {
@@ -89,6 +121,12 @@ export default function App() {
       return;
     }
 
+    if (!canUseApi) {
+      setCreatedOrder(createStaticOrder({ total }));
+      setErrors([]);
+      return;
+    }
+
     const response = await fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -114,6 +152,11 @@ export default function App() {
 
   async function handlePayment(provider) {
     if (!createdOrder) {
+      return;
+    }
+
+    if (!canUseApi) {
+      setPaymentMessage('微信/支付宝支付暂未开通，请联系客服完成支付。');
       return;
     }
 
@@ -182,7 +225,7 @@ export default function App() {
             </dl>
           </div>
           <div className="hero-media" aria-label="Paw Pantry 狗狗主视觉">
-            <img src="/assets/hero-dog-studio-v2.png" alt="以橘白狗狗为主体二创的天然零食主视觉" />
+            <img src={resolveAssetPath('/assets/hero-dog-studio-v2.png')} alt="以橘白狗狗为主体二创的天然零食主视觉" />
           </div>
         </section>
 
@@ -283,7 +326,7 @@ function ProductCard({ product, onAddToCart, onSelect }) {
   return (
     <article className="product-card">
       <button className="product-visual product-photo" type="button" onClick={() => onSelect(product)} aria-label={`查看${product.name}`}>
-        <img src={product.image || '/assets/product-training-duck-bites.png'} alt={`${product.name} 产品摄影`} />
+        <img src={resolveAssetPath(product.image || '/assets/product-training-duck-bites.png')} alt={`${product.name} 产品摄影`} />
         <span>{product.categoryLabel}</span>
       </button>
       <div className="product-copy">
