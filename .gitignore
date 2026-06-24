@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local runtime output
+output/
+*.log
+server-*.out.log
+server-*.err.log
+server-*.node.out.log
+server-*.node.err.log
+
+# Agent planning artifacts
+docs/superpowers/
+
+# Unused source/reference images
+public/assets/dog-balcony-hero.jpg
+public/assets/dog-blue-shirt.jpg
+public/assets/dog-lounging.jpg
+public/assets/paw-pantry-hero.png
+public/assets/paw-pantry-dog-hero.png
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Test and coverage artifacts
+coverage/
+.nyc_output/
+
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/
+

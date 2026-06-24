@@ -1,0 +1,31 @@
+{
+    "name":  "paw-pantry",
+    "version":  "0.1.0",
+    "private":  true,
+    "type":  "module",
+    "scripts":  {
+                    "dev":  "vite --host 127.0.0.1",
+                    "server":  "node server/index.js 8797",
+                    "api":  "node server/index.js 8797",
+                    "test":  "vitest run",
+                    "test:watch":  "vitest",
+                    "build":  "vite build",
+                    "preview":  "vite preview --host 127.0.0.1",
+                    "start":  "node server/index.js 8797"
+                },
+    "dependencies":  {
+                         "@vitejs/plugin-react":  "^5.0.4",
+                         "express":  "^5.1.0",
+                         "react":  "^19.1.1",
+                         "react-dom":  "^19.1.1",
+                         "vite":  "^7.1.9"
+                     },
+    "devDependencies":  {
+                            "@testing-library/jest-dom":  "^6.9.1",
+                            "@testing-library/react":  "^16.3.0",
+                            "jsdom":  "^27.0.0",
+                            "playwright":  "^1.61.1",
+                            "supertest":  "^7.1.4",
+                            "vitest":  "^3.2.4"
+                        }
+}
